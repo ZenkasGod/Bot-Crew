@@ -2,7 +2,6 @@ import os
 import discord
 from discord.ext import commands
 import asyncio
-import time
 import json
 from dotenv import load_dotenv
 import sys
@@ -41,6 +40,7 @@ bot = commands.Bot(command_prefix=PREFIX, intents=intents)
 bot.active_duty_users = {}
 
 async def load_cogs():
+    """Tải tất cả các cogs từ thư mục cogs/"""
     if not os.path.exists("cogs"):
         print("⚠️ Thư mục cogs không tồn tại! Bỏ qua việc load cogs.")
         return
@@ -64,6 +64,6 @@ async def on_ready():
 async def main():
     async with bot:
         await load_cogs()
-        await bot.start(TOKEN)  # 🔹 SỬA LẠI chỗ này
+        await bot.start(TOKEN)  # ✅ Dùng biến môi trường
 
 asyncio.run(main())
