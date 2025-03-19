@@ -1,0 +1,3 @@
+# Bỏ qua file chứa thông tin nhạy cảm
+.env
+config/config.json
