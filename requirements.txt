@@ -1,3 +1,4 @@
 ﻿debugpy==1.8.13
 discord.py
 python-dotenv
+pytz
