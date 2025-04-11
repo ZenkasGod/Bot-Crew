@@ -208,7 +208,7 @@ async def handle_unauthorized_guild(guild):
     owner = await bot.fetch_user(guild.owner_id)
     if owner:
         embed_dm = discord.Embed(
-            title="🚫 Bạn đã bị cấm sử dụng bot EMS!",
+            title="🚫 Bạn đã bị cấm sử dụng bot CREW !",
             description=f"**Máy chủ `{guild.name}` không hợp lệ.**\nVui lòng liên hệ **Mr Leonard** hoặc **Discord: Whiterk** để biết thêm chi tiết.",
             color=discord.Color.red()
         )
