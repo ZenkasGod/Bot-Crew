@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 import pytz  # Thêm thư viện pytz để xử lý múi giờ
+import discord
+import re
+from discord.ext import commands
 
 class CountImages(commands.Cog):
     def __init__(self, bot):
@@ -46,28 +49,33 @@ class CountImages(commands.Cog):
         image_extensions = ('png', 'jpg', 'jpeg', 'gif', 'webp')
         image_url_regex = re.compile(r"(https?://\S+\.(?:png|jpg|jpeg|gif|webp))")
 
-        async for message in ctx.channel.history(limit=5000, oldest_first=False):
-            if message.author == member:
-                # So sánh với thời gian UTC của message
-                if start and message.created_at < start:
-                    break
-                if end and message.created_at > end:
-                    continue
+        try:
+            async for message in ctx.channel.history(limit=5000, oldest_first=False):
+                if message.author == member:
+                    # So sánh với thời gian UTC của message
+                    if start and message.created_at < start:
+                        break
+                    if end and message.created_at > end:
+                        continue
 
-                # Đếm hình ảnh
-                count += len([att for att in message.attachments if att.filename.lower().endswith(image_extensions)])
-                count += len([embed for embed in message.embeds if embed.thumbnail and embed.thumbnail.url.lower().endswith(image_extensions)])
-                count += len(image_url_regex.findall(message.content))
+                    # Đếm hình ảnh
+                    count += len([att for att in message.attachments if att.filename.lower().endswith(image_extensions)])
+                    count += len([embed for embed in message.embeds if embed.thumbnail and embed.thumbnail.url.lower().endswith(image_extensions)])
+                    count += len(image_url_regex.findall(message.content))
 
-        # Tạo và gửi kết quả
-        embed = discord.Embed(
-            title="📸 Kết Quả Đếm Hình Ảnh Sự Kiện",
-            description=f"🔍 **Kênh:** {ctx.channel.mention}\n👤 **Người dùng:** {member.mention}\n📅 **Khoảng thời gian:** {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}\n📷 **Tổng số hình ảnh:** {count}",
-            color=discord.Color.blue()
-        )
-        embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+            # Tạo và gửi kết quả
+            embed = discord.Embed(
+                title="📸 Kết Quả Đếm Hình Ảnh Sự Kiện",
+                description=f"🔍 **Kênh:** {ctx.channel.mention}\n👤 **Người dùng:** {member.mention}\n📅 **Khoảng thời gian:** {start_date} - {end_date}\n📷 **Tổng số hình ảnh:** {count}",
+                color=discord.Color.blue()
+            )
+            embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
 
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
+
+        except Exception as e:
+            await ctx.send(f"⚠ Đã xảy ra lỗi khi thực hiện lệnh: {str(e)}")
+            print(f"Error: {str(e)}")  # In lỗi ra console để debug thêm nếu cần
 
 async def setup(bot):
     await bot.add_cog(CountImages(bot))
