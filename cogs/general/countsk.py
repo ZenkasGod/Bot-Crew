@@ -1,7 +1,5 @@
-import discord
-import re
-from discord.ext import commands
 from datetime import datetime, timedelta
+import pytz  # Thêm thư viện pytz để xử lý múi giờ
 
 class CountImages(commands.Cog):
     def __init__(self, bot):
@@ -34,6 +32,12 @@ class CountImages(commands.Cog):
             await ctx.send("⚠ Định dạng ngày không hợp lệ! Vui lòng nhập theo dạng DD/MM/YYYY hoặc YYYY/MM/DD.")
             return
         
+        # Chuyển đổi start và end sang datetime có múi giờ UTC
+        if start:
+            start = pytz.utc.localize(start)  # Chuyển đổi start sang thời gian có múi giờ UTC
+        if end:
+            end = pytz.utc.localize(end)  # Chuyển đổi end sang thời gian có múi giờ UTC
+
         # Nếu ngày bắt đầu và kết thúc giống nhau, tính khoảng thời gian trong ngày đó
         if start == end:
             end = start + timedelta(days=1) - timedelta(seconds=1)
@@ -44,6 +48,7 @@ class CountImages(commands.Cog):
 
         async for message in ctx.channel.history(limit=5000, oldest_first=False):
             if message.author == member:
+                # So sánh với thời gian UTC của message
                 if start and message.created_at < start:
                     break
                 if end and message.created_at > end:
