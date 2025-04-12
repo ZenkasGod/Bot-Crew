@@ -42,9 +42,9 @@ class CountImages(commands.Cog):
         # Đặt thời gian kết thúc là 23:59 của ngày kết thúc
         if end:
             end = pytz.utc.localize(end.replace(hour=23, minute=59, second=59, microsecond=999999))
-
-        # Nếu ngày bắt đầu và kết thúc giống nhau, tính khoảng thời gian trong ngày đó
-        if start == end:
+        
+        # Nếu cả start và end đều tồn tại và giống nhau, set end thành cuối ngày đó
+        if start is not None and end is not None and start == end:
             end = start + timedelta(days=1) - timedelta(seconds=1)
 
         count = 0
