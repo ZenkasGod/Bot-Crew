@@ -35,11 +35,13 @@ class CountImages(commands.Cog):
             await ctx.send("⚠ Định dạng ngày không hợp lệ! Vui lòng nhập theo dạng DD/MM/YYYY hoặc YYYY/MM/DD.")
             return
         
-        # Chuyển đổi start và end sang datetime có múi giờ UTC
+        # Đặt thời gian bắt đầu là 00:01 của ngày bắt đầu
         if start:
-            start = pytz.utc.localize(start)  # Chuyển đổi start sang thời gian có múi giờ UTC
+            start = pytz.utc.localize(start.replace(hour=0, minute=1, second=0, microsecond=0))
+        
+        # Đặt thời gian kết thúc là 23:59 của ngày kết thúc
         if end:
-            end = pytz.utc.localize(end)  # Chuyển đổi end sang thời gian có múi giờ UTC
+            end = pytz.utc.localize(end.replace(hour=23, minute=59, second=59, microsecond=999999))
 
         # Nếu ngày bắt đầu và kết thúc giống nhau, tính khoảng thời gian trong ngày đó
         if start == end:
@@ -54,9 +56,9 @@ class CountImages(commands.Cog):
                 if message.author == member:
                     # So sánh với thời gian UTC của message
                     if start and message.created_at < start:
-                        break
+                        continue  # Bỏ qua tin nhắn trước ngày bắt đầu
                     if end and message.created_at > end:
-                        continue
+                        continue  # Bỏ qua tin nhắn sau ngày kết thúc
 
                     # Đếm hình ảnh
                     count += len([att for att in message.attachments if att.filename.lower().endswith(image_extensions)])
