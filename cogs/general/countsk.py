@@ -11,22 +11,24 @@ class CountImages(commands.Cog):
     async def countsk(self, ctx, *args):
         """Đếm số hình ảnh theo ngày hoặc khoảng ngày (dd/mm/yyyy) của một người trong kênh"""
 
-        # Kiểm tra đủ số lượng tham số
         if len(args) < 2:
             await ctx.send("⚠ Vui lòng nhập ngày và đề cập người dùng! Ví dụ:\n"
                            "`!countsk 12/04/2025 @Zenka` hoặc `!countsk 10/04/2025 12/04/2025 @Zenka`")
             return
 
         try:
-            # Trường hợp chỉ có 1 ngày và 1 người dùng
+            if not ctx.message.mentions:
+                await ctx.send("⚠ Bạn cần tag (mention) đúng người dùng! (ví dụ: `@Zenka`)")
+                return
+
+            member = ctx.message.mentions[0]
+
+            # 1 ngày hoặc khoảng ngày
             if len(args) == 2:
                 start_date = end_date = datetime.strptime(args[0], "%d/%m/%Y")
-                member = ctx.message.mentions[0]
-            # Trường hợp có 2 ngày và 1 người dùng
             elif len(args) == 3:
                 start_date = datetime.strptime(args[0], "%d/%m/%Y")
                 end_date = datetime.strptime(args[1], "%d/%m/%Y")
-                member = ctx.message.mentions[0]
             else:
                 await ctx.send("⚠ Cú pháp không đúng! Dùng `!countsk dd/mm/yyyy [dd/mm/yyyy] @user`")
                 return
@@ -35,9 +37,11 @@ class CountImages(commands.Cog):
             await ctx.send("⚠ Lỗi định dạng ngày (dd/mm/yyyy) hoặc không tìm thấy người dùng!")
             return
 
-        # Thời gian bắt đầu từ 00:00:00 và kết thúc đến 23:59:59 của ngày cuối
-        start = start_date
-        end = end_date + timedelta(days=1) - timedelta(seconds=1)
+        # Giờ UTC → trừ 7 tiếng để đúng giờ VN
+        start = start_date - timedelta(hours=7)
+        end = end_date + timedelta(days=1) - timedelta(seconds=1) - timedelta(hours=7)
+
+        print(f"[DEBUG] Đang đếm ảnh của {member.display_name} từ {start} đến {end}...")
 
         count = 0
         image_extensions = ('png', 'jpg', 'jpeg', 'gif', 'webp')
